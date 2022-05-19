@@ -12,16 +12,24 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 batch_size = 1
 
 if __name__ == '__main__':
+    coverShouldKnow = []
     X = np.arange(1, 256, 5)
     Score = []
+    shouldKnowScore = []
     relativeScore = []
     coverScore = []
     for x in X:
         correctNum = 0
         amount = 0
+        correctMap = {"1": ["2", "4", "5"], "2": ["1", "3", "4", "5", "6"], "3": ["2", "5", "6"],
+                      "4": ["1", "2", "5", "7", "8"], "5": ["1", "2", "3", "4", "6", "7", "8", "9"],
+                      "6": ["2", "3", "5", "8", "9"], "7": ["4", "5", "8"], "8": ["4", "5", "6", "7", "9"],
+                      "9": ["5", "6", "8"]}
         appearRes = {}
-        corrected = {"7------>5": False, "5------>7": False, "6------>5": False, "6------>9": False, "6------>8": False,
-                     "6------>3": False, "3------>2": False, "5------>2": False}
+        shouldKnow = {"9->6": False, "6->5": False, "5->2": False, "2->4": False, "4->7": False,
+                      "7->8": False, "8->9": False, "3->2": False}
+        corrected = {"7->5": False, "5->7": False, "6->5": False, "6->9": False, "6->8": False,
+                     "6->3": False, "3->2": False, "5->2": False}
         appearNum = 3
         dif = 10
         thresh = x
@@ -33,6 +41,7 @@ if __name__ == '__main__':
         frameNum = int(cap.get(7))
         video = np.zeros((frameNum, hei, wid, 3), dtype='float16')
         cnt = 0
+        impossibleList = {"1->3", "1->6", "1->9", "1->8", "1->7"}
         frameList = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: []}
         timeList = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0}
         printList = {1: False, 2: False, 3: False, 4: False, 5: False, 6: False, 7: False, 8: False, 9: False}
@@ -131,17 +140,16 @@ if __name__ == '__main__':
             if not frameList.get(key):
                 continue
             for secondKey in frameList.keys():
-                if secondKey == key or not frameList.get(secondKey):
+                if secondKey == key or not frameList.get(secondKey) or str(secondKey) not in correctMap.get(str(key)):
                     continue
                 for value in frameList[key]:
                     for secondValue in frameList[secondKey]:
                         if frameDiff >= secondValue - value > 0:
-                            # print(str(key) + "------>" + str(secondKey) + ":" + str(value) + "----------->" + str(secondValue))
-                            if (str(key) + "------>" + str(secondKey)) in appearRes.keys():
-                                appearRes[str(key) + "------>" + str(secondKey)] = appearRes[str(key) + "------>" + str(
+                            if (str(key) + "->" + str(secondKey)) in appearRes.keys():
+                                appearRes[str(key) + "->" + str(secondKey)] = appearRes[str(key) + "->" + str(
                                     secondKey)] + 1
                             else:
-                                appearRes[str(key) + "------>" + str(secondKey)] = 1
+                                appearRes[str(key) + "->" + str(secondKey)] = 1
         realRes = {}
         for key in appearRes.keys():
             if appearRes[key] >= appearNum:
@@ -151,24 +159,34 @@ if __name__ == '__main__':
             if key in corrected:
                 corrected[key] = True
                 correctNum = correctNum + realRes[key]
+            if key in shouldKnow:
+                shouldKnow[key] = True
         counter = 0
         for value in corrected.values():
             if value:
                 counter = counter + 1
         Score.append(counter / len(corrected))
+        counter = 0
+        for value in shouldKnow.values():
+            if value:
+                counter = counter + 1
+        shouldKnowScore.append(counter / len(shouldKnow))
         if amount == 0:
             relativeScore.append(1)
         else:
             relativeScore.append(correctNum / amount)
         coverScore.append(1-len(realRes)/72)
+        coverShouldKnow.append(len(realRes)/25)
     scoreArray = np.array(Score)
     relativeScoreArray = np.array(relativeScore)
     coverScoreArray = np.array(coverScore)
     plt.plot(X, scoreArray, label="Score")
     plt.plot(X, relativeScoreArray, label="relativeScore")
     plt.plot(X, coverScoreArray, label="coverScore")
+    plt.plot(X, shouldKnowScore, label="shouldKnowScore")
+    plt.plot(X, coverShouldKnow, label="coverShouldKnow")
     plt.xlabel("threshold")
     plt.ylabel("score")
-    plt.title("parameter------threshold")
+    plt.title("parameter-threshold")
     plt.legend()
     plt.show()
