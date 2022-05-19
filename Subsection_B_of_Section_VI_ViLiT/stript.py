@@ -122,7 +122,7 @@ if __name__ == '__main__':
     num_batch = X_test.shape[0] // batch_size + 1
     X = np.array_split(X_test, num_batch)
     Y = np.array_split(y_test, num_batch)
-    for index in (100, 200):
+    for index in range(300):
         x_tensor = torch.from_numpy(X[index]).float()
         x_tensor = x_tensor.to(device)
         baseline_single = torch.Tensor(np.random.random(x_tensor.shape)).to(device)
@@ -140,7 +140,6 @@ if __name__ == '__main__':
         with torch.no_grad():
             result = transforms(x_tensor)
             _, preds = torch.max(result, 1)
-        print(preds)
         # # -------------------Integrated_gradients--------------------------#
         # integrated_gradients = IntegratedGradients(transforms)
         # attributions_ig_nt = integrated_gradients.attribute(x_tensor, baselines=baseline_single, target=preds)
@@ -193,13 +192,28 @@ if __name__ == '__main__':
 #                                                   hasBaseline=baseline_single,
 #                                                   hasSliding_window_shapes=(1, 1))
 #         TSR_saliency_OS = givenAttGetRescaledSaliency(TSR_attributions_OS, isTensor=False)
-#         for j in range(batch_size):
-#             label = 0
-#             for index1 in Y[index][j]:
-#                 if index1 != 1.0:
-#                     label = label + 1
-#                 else:
-#                     break
+        for j in range(batch_size):
+            label = 0
+            for index1 in Y[index][j]:
+                if index1 != 1.0:
+                    label = label + 1
+                else:
+                    break
+            videoName = "C:\\Users\\Razer\\LightDigitDataset\\Blocked Dataset\\Dataset\\" + str(index) + "_" +"{:.0f}".format(preds[0].data) + "_" + str(
+                    label) + ".mp4"
+            videoWrite = cv2.VideoWriter(videoName, 0x00000021, 20.0, (300, 300))
+            for i in range(rows):
+                temp = X[index][j][i] * (255 / 100)
+                x = np.array([
+                    [temp[1], temp[2], temp[3]],
+                    [temp[7], temp[8], temp[0]],
+                    [temp[6], temp[5], temp[4]]
+                ])
+                x = x.astype(np.uint8)
+                resized = cv2.cvtColor(x, cv2.COLOR_GRAY2BGR)
+                resized = np.kron(resized, np.ones((100, 100, 1)))
+                resized = resized.astype(np.uint8)
+                videoWrite.write(resized)
 # #-------------------------Wirte Video for IG------------------------#
 #             videoWrite = cv2.VideoWriter(
 #                 "C:\\Users\\Razer\\LightDigitDataset\\Blocked Dataset\\Dataset\\" + str(index) + "_" + str(
