@@ -13,7 +13,7 @@ batch_size = 1
 
 if __name__ == '__main__':
     coverShouldKnow = []
-    X = np.arange(1, 256, 5)
+    X = np.arange(1, 10, 1)
     Score = []
     shouldKnowScore = []
     relativeScore = []
@@ -31,8 +31,8 @@ if __name__ == '__main__':
         corrected = {"7->5": False, "5->7": False, "6->5": False, "6->9": False, "6->8": False,
                      "6->3": False, "3->2": False, "5->2": False}
         appearNum = 3
-        dif = 10
-        thresh = x
+        dif = 14
+        thresh = 255
         lastFrame = 1
         frameDiff = 20
         cap = cv2.VideoCapture('C:\\Users\\Razer\\Desktop\\video\\TestData\\0\\0_8_0_OS.mp4')
@@ -181,12 +181,12 @@ if __name__ == '__main__':
     relativeScoreArray = np.array(relativeScore)
     coverScoreArray = np.array(coverScore)
     plt.plot(X, scoreArray, label="Score")
-    plt.plot(X, relativeScoreArray, label="relativeScore")
+    # plt.plot(X, relativeScoreArray, label="relativeScore")
     plt.plot(X, coverScoreArray, label="coverScore")
     plt.plot(X, shouldKnowScore, label="shouldKnowScore")
-    plt.plot(X, coverShouldKnow, label="coverShouldKnow")
-    plt.xlabel("threshold")
+    # plt.plot(X, coverShouldKnow, label="coverShouldKnow")
+    plt.xlabel("continuous frames")
     plt.ylabel("score")
-    plt.title("parameter-threshold")
+    plt.title("parameter-lastFrame")
     plt.legend()
     plt.show()
