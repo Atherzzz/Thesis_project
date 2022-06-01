@@ -13,7 +13,7 @@ batch_size = 1
 
 if __name__ == '__main__':
     coverShouldKnow = []
-    X = np.arange(1, 10, 1)
+    X = np.arange(1, 100, 1)
     Score = []
     shouldKnowScore = []
     relativeScore = []
@@ -26,22 +26,24 @@ if __name__ == '__main__':
                       "6": ["2", "3", "5", "8", "9"], "7": ["4", "5", "8"], "8": ["4", "5", "6", "7", "9"],
                       "9": ["5", "6", "8"]}
         appearRes = {}
-        shouldKnow = {"9->6": False, "6->5": False, "5->2": False, "2->4": False, "4->7": False,
-                      "7->8": False, "8->9": False, "3->2": False}
-        corrected = {"7->5": False, "5->7": False, "6->5": False, "6->9": False, "6->8": False,
-                     "6->3": False, "3->2": False, "5->2": False}
+        # shouldKnow = {"9->6": False, "6->5": False, "5->2": False, "2->4": False, "4->7": False,
+        #               "7->8": False, "8->9": False, "3->2": False}
+        # corrected = {"7->5": False, "5->7": False, "6->5": False, "6->9": False, "6->8": False,
+        #              "6->3": False, "3->2": False, "5->2": False}
+        shouldKnow = {"9->6": False, "6->3": False, "3->2": False, "2->4": False, "4->7": False,
+                      "7->8": False, "8->9": False}
+        corrected = {"6->3": False, "3->2": False}
         appearNum = 3
-        dif = 14
+        dif = 40
         thresh = 255
         lastFrame = 1
-        frameDiff = 20
-        cap = cv2.VideoCapture('C:\\Users\\Razer\\Desktop\\video\\TestData\\0\\0_8_0_OS.mp4')
+        frameDiff = x
+        cap = cv2.VideoCapture('C:\\Users\\Razer\\Desktop\\video\\TestData\\0\\1_0_0_OS.mp4')
         wid = int(cap.get(3))
         hei = int(cap.get(4))
         frameNum = int(cap.get(7))
         video = np.zeros((frameNum, hei, wid, 3), dtype='float16')
         cnt = 0
-        impossibleList = {"1->3", "1->6", "1->9", "1->8", "1->7"}
         frameList = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: []}
         timeList = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0}
         printList = {1: False, 2: False, 3: False, 4: False, 5: False, 6: False, 7: False, 8: False, 9: False}
@@ -167,23 +169,30 @@ if __name__ == '__main__':
                 counter = counter + 1
         Score.append(counter / len(corrected))
         counter = 0
-        for value in shouldKnow.values():
+        for (key, value) in shouldKnow.items():
             if value:
                 counter = counter + 1
+                # print("model know:" + key)
+            # else:
+            #     # print("model dont know:" + key)
         shouldKnowScore.append(counter / len(shouldKnow))
         if amount == 0:
             relativeScore.append(1)
         else:
             relativeScore.append(correctNum / amount)
         coverScore.append(1-len(realRes)/72)
-        coverShouldKnow.append(len(realRes)/25)
+        # coverShouldKnow.append(1-len(realRes)/25)
+        for key in realRes.keys():
+            print("model really know:" + key)
     scoreArray = np.array(Score)
+    shouldKnowArray = np.array(shouldKnowScore)
     relativeScoreArray = np.array(relativeScore)
     coverScoreArray = np.array(coverScore)
     plt.plot(X, scoreArray, label="Score")
     # plt.plot(X, relativeScoreArray, label="relativeScore")
     plt.plot(X, coverScoreArray, label="coverScore")
-    plt.plot(X, shouldKnowScore, label="shouldKnowScore")
+    plt.plot(X, shouldKnowArray, label="simulateScore")
+    # plt.plot(X, shouldKnowScore, label="shouldKnowScore")
     # plt.plot(X, coverShouldKnow, label="coverShouldKnow")
     plt.xlabel("continuous frames")
     plt.ylabel("score")
