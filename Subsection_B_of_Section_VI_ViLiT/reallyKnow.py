@@ -12,33 +12,45 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 batch_size = 1
 
 if __name__ == '__main__':
+    dontKnow = {}
     coverShouldKnow = []
     X = np.arange(1, 100, 1)
     Score = []
     shouldKnowScore = []
     relativeScore = []
     coverScore = []
-    for x in X:
-        correctNum = 0
-        amount = 0
-        correctMap = {"1": ["2", "4", "5"], "2": ["1", "3", "4", "5", "6"], "3": ["2", "5", "6"],
-                      "4": ["1", "2", "5", "7", "8"], "5": ["1", "2", "3", "4", "6", "7", "8", "9"],
-                      "6": ["2", "3", "5", "8", "9"], "7": ["4", "5", "8"], "8": ["4", "5", "6", "7", "9"],
-                      "9": ["5", "6", "8"]}
-        appearRes = {}
-        # shouldKnow = {"9->6": False, "6->5": False, "5->2": False, "2->4": False, "4->7": False,
-        #               "7->8": False, "8->9": False, "3->2": False}
-        # corrected = {"7->5": False, "5->7": False, "6->5": False, "6->9": False, "6->8": False,
-        #              "6->3": False, "3->2": False, "5->2": False}
-        shouldKnow = {"9->6": False, "6->3": False, "3->2": False, "2->4": False, "4->7": False,
-                      "7->8": False, "8->9": False}
-        corrected = {"6->3": False, "3->2": False}
+    correctNum = 0
+    amount = 0
+    shouldKnow = {0: "2,4 4,7 7,8 8,9 9,6 6,3 3,2 ", 1: "2,4 4,7 7,8 8,9 9,6 6,3 3,2 ",
+                  2: "2,4 4,7 7,8 8,9 9,6 6,2 ",
+                  3: "2,4 4,7 7,8 8,9 9,6 6,3 3,2 ", 4: "2,4 4,8 8,9 9,6 6,3 3,2 ", 5: "2,4 4,7 7,8 8,9 9,6 6,2 ",
+                  6: "2,4 4,7 7,8 8,9 9,6 6,2 ", 7: "2,4 4,7 7,8 8,9 9,6 6,3 3,2 ", 8: "2,4 4,7 7,8 8,9 9,6 6,2 ",
+                  9: "2,4 4,7 7,8 8,9 9,6 6,2 "
+                  }
+    correctMap = {"1": ["2", "4", "5"], "2": ["1", "3", "4", "5", "6"], "3": ["2", "5", "6"],
+                  "4": ["1", "2", "5", "7", "8"], "5": ["1", "2", "3", "4", "6", "7", "8", "9"],
+                  "6": ["2", "3", "5", "8", "9"], "7": ["4", "5", "8"], "8": ["4", "5", "6", "7", "9"],
+                  "9": ["5", "6", "8"]}
+    appearRes = {}
+    # shouldKnow = {"9->6": False, "6->5": False, "5->2": False, "2->4": False, "4->7": False,
+    #               "7->8": False, "8->9": False, "3->2": False}
+    # corrected = {"7->5": False, "5->7": False, "6->5": False, "6->9": False, "6->8": False,
+    #              "6->3": False, "3->2": False, "5->2": False}
+    # shouldKnow = {"9->6": False, "6->3": False, "3->2": False, "2->4": False, "4->7": False,
+    #               "7->8": False, "8->9": False}
+    corrected = {"6->3": False, "3->2": False}
+    for index in range(0, 10):
+        finalShouldKnow = []
+        this_should_know = shouldKnow[index]
+        this_should_know_list = this_should_know.split(' ')
+        for string in this_should_know_list:
+            finalShouldKnow. append(string.replace(",", "->"))
         appearNum = 3
         dif = 40
-        thresh = 255
+        thresh = 150
         lastFrame = 1
         frameDiff = 30
-        cap = cv2.VideoCapture('C:\\Users\\Razer\\Desktop\\video\\TestData\\0\\1_0_0_OS.mp4')
+        cap = cv2.VideoCapture('C:\\Users\\Razer\\Desktop\\video\\TestData\\0\\saliency\\' + str(index) + '.mp4')
         wid = int(cap.get(3))
         hei = int(cap.get(4))
         frameNum = int(cap.get(7))
@@ -161,41 +173,45 @@ if __name__ == '__main__':
             if key in corrected:
                 corrected[key] = True
                 correctNum = correctNum + realRes[key]
-            if key in shouldKnow:
-                shouldKnow[key] = True
+            # if key in shouldKnow:
+            #     shouldKnow[key] = True
         counter = 0
         for value in corrected.values():
             if value:
                 counter = counter + 1
         Score.append(counter / len(corrected))
         counter = 0
-        for (key, value) in shouldKnow.items():
-            if value:
-                counter = counter + 1
-                # print("model know:" + key)
-            # else:
-            #     # print("model dont know:" + key)
-        shouldKnowScore.append(counter / len(shouldKnow))
+        # for (key, value) in shouldKnow.items():
+        #     if value:
+        #         counter = counter + 1
+        #         # print("model know:" + key)
+        #     # else:
+        #     #     # print("model dont know:" + key)
+        # shouldKnowScore.append(counter / len(shouldKnow))
         if amount == 0:
             relativeScore.append(1)
         else:
             relativeScore.append(correctNum / amount)
-        coverScore.append(1-len(realRes)/72)
+        coverScore.append(1 - len(realRes) / 72)
         # coverShouldKnow.append(1-len(realRes)/25)
         for key in realRes.keys():
-            print("model really know:" + key)
-    scoreArray = np.array(Score)
-    shouldKnowArray = np.array(shouldKnowScore)
-    relativeScoreArray = np.array(relativeScore)
-    coverScoreArray = np.array(coverScore)
-    plt.plot(X, scoreArray, label="Score")
-    # plt.plot(X, relativeScoreArray, label="relativeScore")
-    plt.plot(X, coverScoreArray, label="coverScore")
-    plt.plot(X, shouldKnowArray, label="simulateScore")
-    # plt.plot(X, shouldKnowScore, label="shouldKnowScore")
-    # plt.plot(X, coverShouldKnow, label="coverShouldKnow")
-    plt.xlabel("continuous frames")
-    plt.ylabel("score")
-    plt.title("parameter-lastFrame")
-    plt.legend()
-    plt.show()
+            if key not in finalShouldKnow:
+                if not dontKnow.__contains__(key):
+                    dontKnow[key] = 1
+                else:
+                    dontKnow[key] = dontKnow[key] + 1
+            # print("for index:" + str(index) + " model really know: " + key)
+        for key in finalShouldKnow:
+            if key:
+                if key not in realRes.keys():
+                    if not dontKnow.__contains__(key):
+                        dontKnow[key] = -1
+                    else:
+                        dontKnow[key] = dontKnow[key] - 1
+                # print("for index:" + str(index) + " model should know: " + key)
+    for key in dontKnow:
+        if dontKnow[key] > 0:
+            pass
+            print("model focus on " + key + "by " + str(dontKnow[key]))
+        else:
+            print("model loss on " + key + "by " + str(dontKnow[key]))

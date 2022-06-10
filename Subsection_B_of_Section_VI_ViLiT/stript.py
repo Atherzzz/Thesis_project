@@ -185,13 +185,13 @@ if __name__ == '__main__':
 #                                                   hasFeatureMask=inputMask)
 #         TSR_saliency_SS = givenAttGetRescaledSaliency(TSR_attributions_SS, isTensor=False)
 #         # ------------OcclusionFlag-----------------------------#
-#         OS = Occlusion(transforms)
-#         attributions_OS = OS.attribute(x_tensor, sliding_window_shapes=(1, 1), target=preds, baselines=baseline_single)
-#         attributions_OS_np = attributions_OS.cpu().numpy()
-#         TSR_attributions_OS = getTwoStepRescaling(OS, x_tensor, 300, 9, preds,
-#                                                   hasBaseline=baseline_single,
-#                                                   hasSliding_window_shapes=(1, 1))
-#         TSR_saliency_OS = givenAttGetRescaledSaliency(TSR_attributions_OS, isTensor=False)
+        OS = Occlusion(transforms)
+        attributions_OS = OS.attribute(x_tensor, sliding_window_shapes=(1, 1), target=preds, baselines=baseline_single)
+        attributions_OS_np = attributions_OS.cpu().numpy()
+        TSR_attributions_OS = getTwoStepRescaling(OS, x_tensor, 300, 9, preds,
+                                                  hasBaseline=baseline_single,
+                                                  hasSliding_window_shapes=(1, 1))
+        TSR_saliency_OS = givenAttGetRescaledSaliency(TSR_attributions_OS, isTensor=False)
         for j in range(batch_size):
             label = 0
             for index1 in Y[index][j]:
@@ -496,46 +496,46 @@ if __name__ == '__main__':
 # #                 resized = resized.astype(np.uint8)
 # #                 videoWrite7.write(resized)
 # # #------------------------------write video fpr OcclusionFlag--------------------#
-# #             videoWrite8 = cv2.VideoWriter(
-# #                 "C:\\Users\\Razer\\LightDigitDataset\\Blocked Dataset\\Dataset\\" + str(index) + "_" + str(
-# #                     label) + "_OS.mp4",
-# #                 0x00000021, 20.0, (300, 300))
-# #             for i in range(rows):
-# #                 temp = X[index][j][i] * (255 / 100)
-# #                 x = np.array([
-# #                     [temp[1], temp[2], temp[3]],
-# #                     [temp[7], temp[8], temp[0]],
-# #                     [temp[6], temp[5], temp[4]]
-# #                 ])
-# #                 x = x.astype(np.uint8)
-# #                 resized = cv2.cvtColor(x, cv2.COLOR_GRAY2BGR)
-# #                 if TSR_saliency_OS[i][0] > 0.4:
-# #                     resized[1, 2, 0] = 0
-# #                     resized[1, 2, 1] = 0
-# #                 if TSR_saliency_OS[i][1] > 0.4:
-# #                     resized[0, 0, 0] = 0
-# #                     resized[0, 0, 1] = 0
-# #                 if TSR_saliency_OS[i][2] > 0.4:
-# #                     resized[0, 1, 0] = 0
-# #                     resized[0, 1, 1] = 0
-# #                 if TSR_saliency_OS[i][3] > 0.4:
-# #                     resized[0, 2, 0] = 0
-# #                     resized[0, 2, 1] = 0
-# #                 if TSR_saliency_OS[i][4] > 0.4:
-# #                     resized[2, 2, 0] = 0
-# #                     resized[2, 2, 1] = 0
-# #                 if TSR_saliency_OS[i][5] > 0.4:
-# #                     resized[2, 1, 0] = 0
-# #                     resized[2, 1, 1] = 0
-# #                 if TSR_saliency_OS[i][6] > 0.4:
-# #                     resized[2, 0, 0] = 0
-# #                     resized[2, 0, 1] = 0
-# #                 if TSR_saliency_OS[i][7] > 0.4:
-# #                     resized[1, 0, 0] = 0
-# #                     resized[1, 0, 1] = 0
-# #                 if TSR_saliency_OS[i][8] > 0.4:
-# #                     resized[1, 1, 0] = 0
-# #                     resized[1, 1, 1] = 0
-# #                 resized = np.kron(resized, np.ones((100, 100, 1)))
-# #                 resized = resized.astype(np.uint8)
-# #                 videoWrite8.write(resized)
+            videoWrite8 = cv2.VideoWriter(
+                "C:\\Users\\Razer\\LightDigitDataset\\Blocked Dataset\\Dataset\\" + str(index) + "_" + str(
+                    label) + "_OS.mp4",
+                0x00000021, 20.0, (300, 300))
+            for i in range(rows):
+                temp = X[index][j][i] * (255 / 100)
+                x = np.array([
+                    [temp[1], temp[2], temp[3]],
+                    [temp[7], temp[8], temp[0]],
+                    [temp[6], temp[5], temp[4]]
+                ])
+                x = x.astype(np.uint8)
+                resized = cv2.cvtColor(x, cv2.COLOR_GRAY2BGR)
+                if TSR_saliency_OS[i][0] > 0.4:
+                    resized[1, 2, 0] = 0
+                    resized[1, 2, 1] = 0
+                if TSR_saliency_OS[i][1] > 0.4:
+                    resized[0, 0, 0] = 0
+                    resized[0, 0, 1] = 0
+                if TSR_saliency_OS[i][2] > 0.4:
+                    resized[0, 1, 0] = 0
+                    resized[0, 1, 1] = 0
+                if TSR_saliency_OS[i][3] > 0.4:
+                    resized[0, 2, 0] = 0
+                    resized[0, 2, 1] = 0
+                if TSR_saliency_OS[i][4] > 0.4:
+                    resized[2, 2, 0] = 0
+                    resized[2, 2, 1] = 0
+                if TSR_saliency_OS[i][5] > 0.4:
+                    resized[2, 1, 0] = 0
+                    resized[2, 1, 1] = 0
+                if TSR_saliency_OS[i][6] > 0.4:
+                    resized[2, 0, 0] = 0
+                    resized[2, 0, 1] = 0
+                if TSR_saliency_OS[i][7] > 0.4:
+                    resized[1, 0, 0] = 0
+                    resized[1, 0, 1] = 0
+                if TSR_saliency_OS[i][8] > 0.4:
+                    resized[1, 1, 0] = 0
+                    resized[1, 1, 1] = 0
+                resized = np.kron(resized, np.ones((100, 100, 1)))
+                resized = resized.astype(np.uint8)
+                videoWrite8.write(resized)
